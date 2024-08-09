@@ -1,0 +1,1 @@
+pm2 start "npm run start" --no-autorestart --name "scuoler log processor" --cron "3 0,12 * * *"

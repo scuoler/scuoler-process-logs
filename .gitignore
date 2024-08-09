@@ -1,0 +1,6 @@
+#put files to ignore
+node_modules/
+build/
+Configuration.js
+ConfigurationTest.js
+Constants.js
