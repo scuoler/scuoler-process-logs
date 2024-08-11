@@ -26,6 +26,7 @@ const getPool: () => Pool = () => {
 
 const processLogs = (direPath: string) => {
     const processSuccessFiles: string[] = [];
+    const pool: Pool = getPool();
     fs.readdir(direPath, function (err: Error, files: any[]) {
         //handling error
         if (err) {
@@ -37,7 +38,7 @@ const processLogs = (direPath: string) => {
         files.forEach(function (fileName) {
             //console.log(typeof fileName, fileName, pastReg.test(fileName));
             if (pastReg.test(fileName)) {
-                processFile(direPath, fileName, processSuccessFiles);
+                processFile(direPath, fileName, processSuccessFiles, pool);
             }
             /*if (curReg.test(fileName)) {
 
@@ -45,10 +46,12 @@ const processLogs = (direPath: string) => {
 
         });
     });
+    //pool.end(() => { });
+
 };
 
 
-const processFile = (directoryPath: string, fileName: string, processedFiles: string[]) => {
+const processFile = (directoryPath: string, fileName: string, processedFiles: string[], pool: Pool) => {
     //console.log(directoryPath, fileName);
 
     let filePath = `${directoryPath}/${fileName}`;
@@ -60,7 +63,7 @@ const processFile = (directoryPath: string, fileName: string, processedFiles: st
     });
 
     readInterface.on("line", function (line: string) {
-        processLine(line, fileName);
+        processLine(line, fileName, pool);
     });
     readInterface.on("close", function () {
         processedFiles.push(fileName);
@@ -73,8 +76,7 @@ const processFile = (directoryPath: string, fileName: string, processedFiles: st
     });
 };
 
-const processLine = (line: string, fileName: string) => {
-    const pool: Pool = getPool();
+const processLine = (line: string, fileName: string, pool: Pool) => {
 
     //\s = white space character, \S - negation class
     //
@@ -99,8 +101,8 @@ const processLine = (line: string, fileName: string) => {
         let methodAndUrl = matchResult[4].substring(0, 999);
         let status = matchResult[5];
         let responseLength = matchResult[6];
-        let referrer = matchResult[7];
-        let userAgent = matchResult[8];
+        let referrer = matchResult[7].substring(0, 999);
+        let userAgent = matchResult[8].substring(0, 999);
         /*console.log(
             remoteIp,
             remoteUser,
@@ -125,7 +127,7 @@ const processLine = (line: string, fileName: string) => {
             ])
             .then()
             .catch((err: Error) => {
-                console.log(fileName, err);
+                console.log(fileName, line, err);
             });
     } else {
         console.log("could not process", line);
