@@ -134,11 +134,28 @@ const processLine = (line: string, fileName: string, pool: Pool) => {
     }
 };
 
+const updateLogViewsAndTables = () => {
+    const pool: Pool = getPool();
 
+    let selectQuery: string = `
+    select * from public.web_logs_views_materialized()
+    `
+
+    pool.query(selectQuery, [],
+        function (err: Error, result: QueryResult) {
+            pool.end(() => { });
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(result.rows);
+            }
+        });
+}
 
 
 const main = () => {
     processLogs(constants.LOG_DIRECTORY_PATH);
+    updateLogViewsAndTables();
 };
 
 //cron.schedule("*/5 * * * *", main);
